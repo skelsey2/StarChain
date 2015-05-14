@@ -2,15 +2,17 @@ var JS_starChain = {};
 
 JS_starChain.game = (function () {
 	var ctx; //star context
-	var frameLength = 50;
+	var frameLength = 50; //How often gameLoop refreshes 
 	var star;
-	var test = 'test';
+	var planet;
+	
 	function init() {
 		var $canvas = $('#starChain'); //Selecting the Canvas jQuery Object
 		var canvas = $canvas[0]; //selects the dom element 
-		ctx = canvas.getContext('2d'); 
+		ctx = canvas.getContext('2d'); //"2d", leading to the creation of a CanvasRenderingContext2D object representing a two-dimensional rendering context.
 		star = JS_starChain.star();
-		bindKeyboardEvents();
+		planet = JS_starChain.planet();
+		bindKeyboardEvents(); //Adds event - press down of the arrow keys
 		gameLoop();
 		//$canvas.attr('height', 100%); //attr = appends into selected <> tags
 		//$canvas.attr('width', 100%); 
@@ -26,7 +28,15 @@ JS_starChain.game = (function () {
 		//star(canvas, x of center, y of center, radius, number of points, 
 		//fraction of radius for inset)
 		star.continueStarChain(ctx);
-		setTimeout(gameLoop, frameLength);
+		planet.draw(ctx);
+		
+		
+		if (star.chainCollision()){
+			alert("END!");
+		}
+		else {
+			setTimeout(gameLoop, frameLength);
+		}
 	}
 		return {
 			init: init
@@ -61,8 +71,7 @@ JS_starChain.star = function () {
 	var nextDirect = direction;
 	var xPos = 30; //starting x position
 	var yPos = 30; //starting y position
-		//pos
-	console.log(direction);
+
 	function setDirect(newDirect) {
 		var setDirections;
 		switch(direction)
@@ -102,37 +111,78 @@ JS_starChain.star = function () {
 	function continueStarChain(ctx) {
 		var forwardStar;
 		direction = nextDirect;
-		console.log("continueStarChain " + direction);
 		switch (direction) 
 		{
 			case 'left':
-				xPos -= 1;
-				console.log(xPos);
+				xPos -= 3;
+				//console.log(xPos);
 				break;
 			case 'right':
-				xPos += 1;
-				console.log(xPos);
+				xPos += 3;
+				//console.log(xPos);
 				break;
 			case 'up':
-				yPos -= 1;
-				console.log(yPos);
+				yPos -= 1.8;
+				//console.log(yPos);
 				break;
 			case 'down':
-				yPos +=1;
-				console.log(yPos);
+				yPos += 1.8;
+				//console.log(yPos);
 				break;
 			default:
 				throw('Error Direction');
 		}
-		starDraw(ctx, xPos, yPos, 4, 5, .5);
+		starDraw(ctx, xPos, yPos, 8, 9, .3); //context, x, y, size, points, fraction
+	}
+	
+	function chainCollision () {
+		var wallCollision = false;
+		var starCollision = false;
+		var starPos;
+		
+		var minX = 5;
+		var minY = 5;
+		
+		var maxX = 295;
+		var	maxY = 145;
+		
+		var xBounds = xPos < minX || xPos > maxX;
+		var yBounds = yPos < minY || yPos > maxY;
+		console.log("X: " + xPos + "  Y: " + yPos);
+		if (xBounds || yBounds){
+			wallCollision = true;
+		}
+		console.log("Wall: " + wallCollision);
+		return wallCollision;
 	}
 	
 	return {
 		starDraw: starDraw,
 		continueStarChain: continueStarChain,
-		setDirect: setDirect
+		setDirect: setDirect,
+		chainCollision: chainCollision
 		};
 };
+
+JS_starChain.planet = function () {
+	var position = [6, 6];
+	
+		function draw(ctx) {
+			ctx.save();
+			ctx.fillStyle = 'green'; //apple green
+			ctx.beginPath();
+			var radius = 8 / 2; //star size / 2
+			var x = position[0] * 8 + radius;
+			var y = position[1] * 8 + radius;
+			ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+			ctx.fill();
+			ctx.restore();
+		}
+		return{
+			draw: draw
+		};
+};
+	
 
 $(document).ready(function () {
 	JS_starChain.game.init();
