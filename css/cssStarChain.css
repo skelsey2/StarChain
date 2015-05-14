@@ -1,0 +1,10 @@
+#starChain {
+	height: 100%;
+	width: 100%;
+	border-style: solid;
+	border-color: #8F0000;
+	border-width: 10px;
+	background-color: black;
+	max-height: 500px;
+	max-width: 500px;
+	}
